@@ -1,0 +1,77 @@
+version: "3.9"
+services:
+  dtp:
+    image: parasoft/dtp-extension-designer:2023.1.0
+    user: "root:root"
+    hostname: dtp
+    container_name: dtp
+    depends_on:
+      - mysql
+      - mongo
+    extra_hosts:
+      - "host.internal.docker:host-gateway"
+    networks:
+      - demo-net
+    ports:
+      - 8080:8080
+      - 8082:8082
+      - 8443:8443
+      - 8314:8314
+      - 61617:61617
+    volumes:
+      - type: bind
+        source: /var/run/docker.sock
+        target: /var/run/docker.sock
+      - type: bind
+        source: dtp_data
+        target: /usr/local/parasoft/data
+      - type: volume
+        source: parasoft-volume
+        target: /mnt/parasoft
+    environment:
+      #Used for connecting DTP Enterprise Pack to a remote MongoDB
+      - DEP_USE_REMOTE_DB=true
+      - DEP_DB_HOSTNAME=mongo
+      - DEP_DB_PORT=27017
+  mysql:
+    image: mysql:8.0.33
+    hostname: mysql
+    container_name: mysql
+    ports:
+      - 3306:3306
+    volumes:
+      - type: bind
+        source: mysql
+        target: /var/lib/mysql
+    extra_hosts:
+      - "host.internal.docker:host-gateway"
+    networks:
+      - demo-net
+    environment:
+      #Configure root password for Database
+      - MYSQL_ROOT_PASSWORD=root
+  mongo:
+    image: mongo:latest
+    hostname: mongo
+    container_name: mongo
+    ports:
+      #Default port for MongoDB
+      - 27017:27017
+    volumes:
+      - type: bind
+        source: mongo/db
+        target: /data/db
+      - type: bind
+        source: mongo/configdb
+        target: /data/configdb
+    extra_hosts:
+      - "host.internal.docker:host-gateway"
+    networks:
+      - demo-net
+volumes:
+  parasoft-volume:
+    name: parasoft-volume
+networks:
+  demo-net:
+    external: true
+    name: demo-net
