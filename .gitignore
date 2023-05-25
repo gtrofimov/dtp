@@ -1,0 +1,5 @@
+# persistent data
+dtp_data/**
+mongo/**
+mysql/**
+mysql-*
