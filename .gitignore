@@ -3,3 +3,4 @@ dtp_data/**
 mongo/**
 mysql/**
 mysql-*
+.env
